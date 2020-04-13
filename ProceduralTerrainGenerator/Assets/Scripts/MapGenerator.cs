@@ -9,9 +9,11 @@ public class MapGenerator : MonoBehaviour
     public int mapWidth;
     public int mapHeight;
 
-    public float noiseScale;
+    public float scale;
 
     public float lacunarity;
+
+    [Range(0f, 1f)]
     public float persistence;
 
     public int octaves;
@@ -22,21 +24,25 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateMap()
     {
-        ValidateParameters();
-
-        float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapWidth, mapHeight, noiseScale, lacunarity, persistence, octaves, offset);
+        float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapWidth, mapHeight, scale, lacunarity, persistence, octaves, offset);
 
         MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
         mapDisplay.DrawNoiseMap(noiseMap);
     }
 
-    private void ValidateParameters()
+    private void OnValidate()
     {
-        if (mapWidth <= 0)
+        if (mapWidth < 1)
             mapWidth = 1;
-        if (mapHeight <= 0)
+        if (mapHeight < 1)
             mapHeight = 1;
 
+        if (lacunarity < 1f)
+            lacunarity = 1f;
+
         persistence = Mathf.Clamp(persistence, 0f, 1f);
+
+        if (octaves < 1)
+            octaves = 1;
     }
 }

@@ -164,12 +164,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b6f0bf397b9ba7408112bcbbb8cd18b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 102
+  seed: 20
   mapWidth: 100
   mapHeight: 100
-  noiseScale: 27.2
-  lacunarity: 0
-  persistence: 0
+  scale: 43.14
+  lacunarity: 2.26
+  persistence: 0.342
   octaves: 3
   offset: {x: 0, y: 0}
   autoUpdate: 1
