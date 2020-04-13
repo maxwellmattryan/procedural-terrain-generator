@@ -14,8 +14,10 @@ public class MapGenerator : MonoBehaviour
 
     public float scale;
 
+    [Tooltip("Affects noise frequency across octaves (default = 2f)")]
     public float lacunarity;
 
+    [Tooltip("Affects noise amplitude across octaves (default = 0.5f")]
     [Range(0f, 1f)]
     public float persistence;
 

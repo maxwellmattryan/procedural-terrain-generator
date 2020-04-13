@@ -169,8 +169,8 @@ MonoBehaviour:
   mapWidth: 100
   mapHeight: 100
   scale: 43.14
-  lacunarity: 2.26
-  persistence: 0.342
+  lacunarity: 2
+  persistence: 0.5
   octaves: 3
   offset: {x: 0, y: 0}
   autoUpdate: 1
