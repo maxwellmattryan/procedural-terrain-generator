@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
+    public int seed;
+
     public int mapWidth;
     public int mapHeight;
 
@@ -14,16 +16,18 @@ public class MapGenerator : MonoBehaviour
 
     public int octaves;
 
+    public Vector2 offset;
+
     public bool autoUpdate;
 
     public void GenerateMap()
     {
         ValidateParameters();
 
-        float[,] noiseMap = Noise.GenerateNoiseMap(mapWidth, mapHeight, noiseScale, lacunarity, persistence, octaves);
+        float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapWidth, mapHeight, noiseScale, lacunarity, persistence, octaves, offset);
 
-        var display = FindObjectOfType<MapDisplay>();
-        display.DrawNoiseMap(noiseMap);
+        MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
+        mapDisplay.DrawNoiseMap(noiseMap);
     }
 
     private void ValidateParameters()

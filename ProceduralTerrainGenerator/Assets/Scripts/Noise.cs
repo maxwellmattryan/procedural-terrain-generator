@@ -5,13 +5,26 @@ using UnityEngine;
 public static class Noise
 {
     // TODO: write description comments somewhere (i.e. scale 
-    public static float[,] GenerateNoiseMap(int width, int height, float scale, float lacunarity, float persistence, int octaves)
+    public static float[,] GenerateNoiseMap(int seed, int width, int height, float scale, float lacunarity, float persistence, int octaves, Vector2 offset)
     {
         if (scale <= 0f)
             scale = 0.001f;
 
+        System.Random pseudoRNG = new System.Random(seed);
+        Vector2[] octaveOffsets = new Vector2[octaves];
+        for(int i = 0; i < octaves; i++)
+        {
+            float offsetX = pseudoRNG.Next(-100000, 100000) + offset.x;
+            float offsetY = pseudoRNG.Next(-100000, 100000) + offset.y;
+
+            octaveOffsets[i] = new Vector2(offsetX, offsetY);
+        }
+
         float maxNoiseHeight = float.MinValue;
         float minNoiseHeight = float.MaxValue;
+
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
 
         float[,] noiseMap = new float[width, height];
 
@@ -26,8 +39,8 @@ public static class Noise
 
                 for(int i = 0; i < octaves; i++)
                 {
-                    float sampleX = x / scale * frequency;
-                    float sampleY = y / scale * frequency;
+                    float sampleX = (x - halfWidth) / scale * frequency + octaveOffsets[i].x * frequency;
+                    float sampleY = (y - halfHeight) / scale * frequency + octaveOffsets[i].y * frequency;
 
                     float noiseValue = Mathf.PerlinNoise(sampleX, sampleY) * 2f - 1f;
 
