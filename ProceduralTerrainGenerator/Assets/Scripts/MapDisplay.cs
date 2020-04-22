@@ -20,6 +20,6 @@ public class MapDisplay : MonoBehaviour
         meshFilter.sharedMesh = meshData.CreateMesh();
 
         meshRenderer.sharedMaterial.SetTexture("_MainTex", texture);
-        meshRenderer.transform.localScale = new Vector3(10f, 10f, 10f);
+        meshRenderer.transform.localScale = new Vector3(10f, 100f, 10f);
     }
 }

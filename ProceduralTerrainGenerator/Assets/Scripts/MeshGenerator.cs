@@ -14,20 +14,21 @@ public static class MeshGenerator
         float topLeftZ = (height - 1) / 2f;
 
         MeshData meshData = new MeshData(width, height);
+
         int vertexIndex = 0;
 
         for(int y = 0; y < height; y++)
         {
             for(int x = 0; x < width; x++)
             {
-                meshData.vertices[vertexIndex] = new Vector3(topLeftX + (float) x, heightMap[x, y], topLeftZ - (float) y);
-                meshData.uvMaps[vertexIndex] = new Vector2(x / (float) width, y / (float) height);
-
                 if (x < width - 1 && y < height - 1)
                 {
                     meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
                     meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
                 }
+
+                meshData.vertices[vertexIndex] = new Vector3(topLeftX + (float)x, heightMap[x, y], topLeftZ - (float)y);
+                meshData.uvMaps[vertexIndex] = new Vector2(x / (float) width, y / (float) height);
 
                 vertexIndex++;
             }
@@ -48,8 +49,8 @@ public class MeshData
     public MeshData(int meshWidth, int meshHeight)
     {
         vertices = new Vector3[meshWidth * meshHeight];
-        uvMaps = new Vector2[meshWidth * meshHeight];
         triangles = new int[(meshWidth - 1) * (meshHeight - 1) * 6];
+        uvMaps = new Vector2[meshWidth * meshHeight];
     }
 
     public void AddTriangle(int a, int b, int c)
@@ -57,16 +58,18 @@ public class MeshData
         triangles[_triangleIndex] = a;
         triangles[_triangleIndex + 1] = b;
         triangles[_triangleIndex + 2] = c;
+
         _triangleIndex += 3;
     }
 
     public Mesh CreateMesh()
     {
-        Mesh mesh = new Mesh();
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uvMaps;
+        Mesh mesh = new Mesh
+        {
+            vertices = vertices,
+            triangles = triangles,
+            uv = uvMaps
+        };
 
         // this is intended to make the lighting nicer
         mesh.RecalculateNormals();
