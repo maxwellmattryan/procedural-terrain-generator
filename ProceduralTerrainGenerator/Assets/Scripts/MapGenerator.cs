@@ -36,7 +36,7 @@ public class MapGenerator : MonoBehaviour
 
         Color[] colorMap = GenerateColorMap(mapWidth, mapHeight, noiseMap);
 
-        DrawToMapDisplay(noiseMap, TextureGenerator.FromHeightMap(noiseMap), TextureGenerator.FromColorMap(colorMap, mapWidth, mapHeight));
+        DrawMapDisplay(noiseMap, TextureGenerator.FromHeightMap(noiseMap), TextureGenerator.FromColorMap(colorMap, mapWidth, mapHeight));
     }
 
     private Color[] GenerateColorMap(int width, int height, float[,] noiseMap)
@@ -63,7 +63,7 @@ public class MapGenerator : MonoBehaviour
         return colorMap;
     }
 
-    private void DrawToMapDisplay(float[,] noiseMap, Texture2D heightMapTexture, Texture2D colorMapTexture)
+    private void DrawMapDisplay(float[,] noiseMap, Texture2D heightMapTexture, Texture2D colorMapTexture)
     {
         MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
 
