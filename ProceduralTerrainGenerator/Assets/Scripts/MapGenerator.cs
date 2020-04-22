@@ -36,13 +36,13 @@ public class MapGenerator : MonoBehaviour
     // ** CAUTION: Make sure to enter regions in order of increasing height (or else the terrains will not draw correctly) ** 
     public TerrainType[] regions;
 
-    public void GenerateMap()
+    private MapData GenerateMapData()
     {
         float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapChunkSize, mapChunkSize, scale, lacunarity, persistence, octaves, offset);
 
         Color[] colorMap = GenerateColorMap(mapChunkSize, mapChunkSize, noiseMap);
 
-        DrawMapDisplay(noiseMap, TextureGenerator.FromHeightMap(noiseMap), TextureGenerator.FromColorMap(colorMap, mapChunkSize, mapChunkSize));
+        return new MapData(noiseMap, colorMap);
     }
 
     private Color[] GenerateColorMap(int width, int height, float[,] noiseMap)
@@ -69,23 +69,27 @@ public class MapGenerator : MonoBehaviour
         return colorMap;
     }
 
-    private void DrawMapDisplay(float[,] noiseMap, Texture2D heightMapTexture, Texture2D colorMapTexture)
+    public void DrawMap()
     {
-        MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
+        MapData mapData = GenerateMapData();
 
+        MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
         switch (drawMode)
         {
             default:
             case DrawMode.NoiseMap:
-                mapDisplay.DrawTexture(heightMapTexture);
+                mapDisplay.DrawTexture(TextureGenerator.FromHeightMap(mapData.heightMap));
                 break;
 
             case DrawMode.ColorMap:
-                mapDisplay.DrawTexture(colorMapTexture);
+                mapDisplay.DrawTexture(TextureGenerator.FromColorMap(mapData.colorMap, mapChunkSize, mapChunkSize));
                 break;
 
             case DrawMode.Mesh:
-                mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMeshData(noiseMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), colorMapTexture);
+                mapDisplay.DrawMesh(
+                    MeshGenerator.GenerateTerrainMeshData(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), 
+                    TextureGenerator.FromColorMap(mapData.colorMap, mapChunkSize, mapChunkSize)
+                );
                 break;
         }
     }
@@ -108,4 +112,16 @@ public struct TerrainType
     public string name;
     public float height;
     public Color color;
+}
+
+public struct MapData
+{
+    public float[,] heightMap;
+    public Color[] colorMap;
+
+    public MapData(float [,] heightMap, Color[] colorMap)
+    {
+        this.heightMap = heightMap;
+        this.colorMap = colorMap;
+    }
 }
