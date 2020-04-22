@@ -34,38 +34,52 @@ public class MapGenerator : MonoBehaviour
     {
         float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapWidth, mapHeight, scale, lacunarity, persistence, octaves, offset);
 
-        Color[] colorMap = new Color[mapWidth * mapHeight];
-        for(int y = 0; y < mapHeight; y++)
+        Color[] colorMap = GenerateColorMap(mapWidth, mapHeight, noiseMap);
+
+        DrawToMapDisplay(noiseMap, TextureGenerator.FromHeightMap(noiseMap), TextureGenerator.FromColorMap(colorMap, mapWidth, mapHeight));
+    }
+
+    private Color[] GenerateColorMap(int width, int height, float[,] noiseMap)
+    {
+        Color[] colorMap = new Color[width * height];
+
+        for (int y = 0; y < height; y++)
         {
-            for(int x = 0; x < mapWidth; x++)
+            for (int x = 0; x < width; x++)
             {
                 float currentHeight = noiseMap[x, y];
 
-                for(int i = 0; i < regions.Length; i++)
+                for (int i = 0; i < regions.Length; i++)
                 {
-                    if(currentHeight <= regions[i].height)
+                    if (currentHeight <= regions[i].height)
                     {
-                        colorMap[y * mapWidth + x] = regions[i].color;
+                        colorMap[y * width + x] = regions[i].color;
                         break;
                     }
                 }
             }
         }
 
+        return colorMap;
+    }
+
+    private void DrawToMapDisplay(float[,] noiseMap, Texture2D heightMapTexture, Texture2D colorMapTexture)
+    {
         MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
-        switch(drawMode)
+
+        switch (drawMode)
         {
             default:
             case DrawMode.NoiseMap:
-                mapDisplay.DrawTexture(TextureGenerator.FromHeightMap(noiseMap));
+                mapDisplay.DrawTexture(heightMapTexture);
                 break;
 
             case DrawMode.ColorMap:
-                mapDisplay.DrawTexture(TextureGenerator.FromColorMap(colorMap, mapWidth, mapHeight));
+                mapDisplay.DrawTexture(colorMapTexture);
                 break;
 
             case DrawMode.Mesh:
-                mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap), TextureGenerator.FromColorMap(colorMap, mapWidth, mapHeight));
+                mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMeshData(noiseMap), colorMapTexture);
                 break;
         }
     }
