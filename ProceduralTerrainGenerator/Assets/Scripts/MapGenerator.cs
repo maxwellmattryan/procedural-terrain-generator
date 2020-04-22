@@ -7,8 +7,8 @@ public class MapGenerator : MonoBehaviour
     public enum DrawMode { NoiseMap, ColorMap, Mesh }
     public DrawMode drawMode;
 
-    // this minus 1 needs to be divisible by lots of numbers (for mesh's level of detail)
-    const int mapChunkSize = 241;
+    [HideInInspector]
+    public const int mapChunkSize = 241;
 
     [Range(0, 6)]
     public int levelOfDetail;
