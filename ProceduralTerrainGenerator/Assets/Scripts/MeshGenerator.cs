@@ -5,8 +5,11 @@ using UnityEngine;
 public static class MeshGenerator
 {
     // this returns MeshData (instead of Mesh) because we need the individual data points that allow multi-threading to be possible
-    public static MeshData GenerateTerrainMeshData(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve, int levelOfDetail)
+    public static MeshData GenerateTerrainMeshData(float[,] heightMap, float heightMultiplier, AnimationCurve _heightCurve, int levelOfDetail)
     {
+        // each thread has its own heightCurve with this statement (so no wild discrepancies as a result)
+        AnimationCurve heightCurve = new AnimationCurve(_heightCurve.keys);
+
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
 
