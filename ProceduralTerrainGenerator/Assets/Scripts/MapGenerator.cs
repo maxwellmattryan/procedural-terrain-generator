@@ -7,10 +7,13 @@ public class MapGenerator : MonoBehaviour
     public enum DrawMode { NoiseMap, ColorMap, Mesh }
     public DrawMode drawMode;
 
-    public int seed;
+    // this minus 1 needs to be divisible by lots of numbers (for mesh's level of detail)
+    const int mapChunkSize = 241;
 
-    public int mapWidth;
-    public int mapHeight;
+    [Range(0, 6)]
+    public int levelOfDetail;
+
+    public int seed;
 
     public float scale;
 
@@ -35,11 +38,11 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateMap()
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapWidth, mapHeight, scale, lacunarity, persistence, octaves, offset);
+        float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapChunkSize, mapChunkSize, scale, lacunarity, persistence, octaves, offset);
 
-        Color[] colorMap = GenerateColorMap(mapWidth, mapHeight, noiseMap);
+        Color[] colorMap = GenerateColorMap(mapChunkSize, mapChunkSize, noiseMap);
 
-        DrawMapDisplay(noiseMap, TextureGenerator.FromHeightMap(noiseMap), TextureGenerator.FromColorMap(colorMap, mapWidth, mapHeight));
+        DrawMapDisplay(noiseMap, TextureGenerator.FromHeightMap(noiseMap), TextureGenerator.FromColorMap(colorMap, mapChunkSize, mapChunkSize));
     }
 
     private Color[] GenerateColorMap(int width, int height, float[,] noiseMap)
@@ -82,18 +85,13 @@ public class MapGenerator : MonoBehaviour
                 break;
 
             case DrawMode.Mesh:
-                mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMeshData(noiseMap, meshHeightMultiplier, meshHeightCurve), colorMapTexture);
+                mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMeshData(noiseMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), colorMapTexture);
                 break;
         }
     }
 
     private void OnValidate()
     {
-        if (mapWidth < 1)
-            mapWidth = 1;
-        if (mapHeight < 1)
-            mapHeight = 1;
-
         if (lacunarity < 1f)
             lacunarity = 1f;
 
