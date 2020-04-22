@@ -5,7 +5,7 @@ using UnityEngine;
 public static class MeshGenerator
 {
     // this returns MeshData (instead of Mesh) because we need the individual data points that allow multi-threading to be possible
-    public static MeshData GenerateTerrainMeshData(float[,] heightMap)
+    public static MeshData GenerateTerrainMeshData(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -27,7 +27,7 @@ public static class MeshGenerator
                     meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
                 }
 
-                meshData.vertices[vertexIndex] = new Vector3(topLeftX + (float)x, heightMap[x, y], topLeftZ - (float)y);
+                meshData.vertices[vertexIndex] = new Vector3(topLeftX + (float)x, heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier, topLeftZ - (float)y);
                 meshData.uvMaps[vertexIndex] = new Vector2(x / (float) width, y / (float) height);
 
                 vertexIndex++;

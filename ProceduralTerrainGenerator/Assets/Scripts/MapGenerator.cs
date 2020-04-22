@@ -25,6 +25,9 @@ public class MapGenerator : MonoBehaviour
 
     public Vector2 offset;
 
+    public float meshHeightMultiplier;
+    public AnimationCurve meshHeightCurve;
+
     public bool autoUpdate;
 
     // ** CAUTION: Make sure to enter regions in order of increasing height (or else the terrains will not draw correctly) ** 
@@ -79,7 +82,7 @@ public class MapGenerator : MonoBehaviour
                 break;
 
             case DrawMode.Mesh:
-                mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMeshData(noiseMap), colorMapTexture);
+                mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMeshData(noiseMap, meshHeightMultiplier, meshHeightCurve), colorMapTexture);
                 break;
         }
     }
