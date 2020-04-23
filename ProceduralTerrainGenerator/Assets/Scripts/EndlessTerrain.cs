@@ -7,6 +7,8 @@ public class EndlessTerrain : MonoBehaviour
     private const float _moveDistanceThresholdForChunkUpdate = 25f;
     private const float _sqrMoveDistanceThresholdForChunkUpdate = _moveDistanceThresholdForChunkUpdate * _moveDistanceThresholdForChunkUpdate;
 
+    private const float _scale = 10f;
+
     public LODData[] levelOfDetailData;
     public static float maxViewDistance;
 
@@ -40,7 +42,7 @@ public class EndlessTerrain : MonoBehaviour
 
     private void Update()
     {
-        viewerPosition = new Vector2(viewer.position.x, viewer.position.z);
+        viewerPosition = new Vector2(viewer.position.x, viewer.position.z) / _scale;
 
         if ((_previousViewerPosition - viewerPosition).sqrMagnitude > _sqrMoveDistanceThresholdForChunkUpdate)
         {
@@ -101,8 +103,9 @@ public class EndlessTerrain : MonoBehaviour
             _levelOfDetailData = levelOfDetailData;
 
             Vector3 positionV3 = new Vector3(_position.x, 0f, _position.y);
-            _meshObject.transform.position = positionV3;
+            _meshObject.transform.position = positionV3 * _scale;
             _meshObject.transform.parent = parent;
+            _meshObject.transform.localScale = Vector3.one * _scale;
 
             _meshRenderer = _meshObject.AddComponent<MeshRenderer>();
             _meshRenderer.material = material;
