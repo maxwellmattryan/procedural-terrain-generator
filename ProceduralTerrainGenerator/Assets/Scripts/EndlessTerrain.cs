@@ -22,9 +22,9 @@ public class EndlessTerrain : MonoBehaviour
     private int _chunkSize;
     private int _visibleChunkCount;
 
-    Dictionary<Vector2, TerrainChunk> terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
+    private Dictionary<Vector2, TerrainChunk> _terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
 
-    List<TerrainChunk> previouslyVisibleTerrainChunks = new List<TerrainChunk>();
+    private static List<TerrainChunk> _previouslyVisibleTerrainChunks = new List<TerrainChunk>();
 
     private void Start()
     {
@@ -51,10 +51,10 @@ public class EndlessTerrain : MonoBehaviour
 
     private void UpdateVisibleChunks()
     {
-        for (int i = 0; i < previouslyVisibleTerrainChunks.Count; i++)
-            previouslyVisibleTerrainChunks[i].SetVisibility(false);
+        for (int i = 0; i < _previouslyVisibleTerrainChunks.Count; i++)
+            _previouslyVisibleTerrainChunks[i].SetVisibility(false);
 
-        previouslyVisibleTerrainChunks.Clear();
+        _previouslyVisibleTerrainChunks.Clear();
 
         int currentChunkXPos = Mathf.RoundToInt(viewerPosition.x / _chunkSize);
         int currentChunkYPos = Mathf.RoundToInt(viewerPosition.y / _chunkSize);
@@ -65,15 +65,10 @@ public class EndlessTerrain : MonoBehaviour
             {
                 Vector2 viewedChunkCoord = new Vector2(currentChunkXPos + xOffset, currentChunkYPos + yOffset);
 
-                if(terrainChunkDictionary.ContainsKey(viewedChunkCoord))
-                {
-                    terrainChunkDictionary[viewedChunkCoord].UpdateTerrainChunk();
-
-                    if (terrainChunkDictionary[viewedChunkCoord].IsVisible())
-                        previouslyVisibleTerrainChunks.Add(terrainChunkDictionary[viewedChunkCoord]);
-                }
+                if(_terrainChunkDictionary.ContainsKey(viewedChunkCoord))
+                    _terrainChunkDictionary[viewedChunkCoord].UpdateTerrainChunk();
                 else
-                    terrainChunkDictionary.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, _chunkSize, levelOfDetailData, transform, mapMaterial));
+                    _terrainChunkDictionary.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, _chunkSize, levelOfDetailData, transform, mapMaterial));
             }
         }
     }
@@ -145,6 +140,8 @@ public class EndlessTerrain : MonoBehaviour
                     else if (!levelOfDetailMesh.hasRequestedMesh)
                         levelOfDetailMesh.RequestMesh(_mapData);
                 }
+
+                _previouslyVisibleTerrainChunks.Add(this);
             }   
 
             SetVisibility(isVisible);
