@@ -13,7 +13,7 @@ public class MapGenerator : MonoBehaviour
     public const int mapChunkSize = 241;
 
     [Range(0, 6)]
-    public int levelOfDetail;
+    public int editorLevelOfDetail;
 
     public int seed;
 
@@ -62,17 +62,17 @@ public class MapGenerator : MonoBehaviour
 
     private Queue<MapThreadInfo<MeshData>> _meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
 
-    public void RequestMeshData(MapData mapData, Action<MeshData> callback)
+    public void RequestMeshData(MapData mapData, int levelOfDetail, Action<MeshData> callback)
     {
         ThreadStart threadStart = delegate 
-        { 
-            MeshDataThread(mapData, callback); 
+        {
+            MeshDataThread(mapData, levelOfDetail, callback); ; 
         };
 
         new Thread(threadStart).Start();
     }
 
-    private void MeshDataThread(MapData mapData, Action<MeshData> callback)
+    private void MeshDataThread(MapData mapData, int levelOfDetail, Action<MeshData> callback)
     {
         MeshData meshData = MeshGenerator.GenerateTerrainMeshData(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail);
 
@@ -130,7 +130,7 @@ public class MapGenerator : MonoBehaviour
 
             case DrawMode.Mesh:
                 mapDisplay.DrawMesh(
-                    MeshGenerator.GenerateTerrainMeshData(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), 
+                    MeshGenerator.GenerateTerrainMeshData(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, editorLevelOfDetail), 
                     TextureGenerator.FromColorMap(mapData.colorMap, mapChunkSize, mapChunkSize)
                 );
                 break;
