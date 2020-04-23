@@ -118,7 +118,7 @@ public class EndlessTerrain : MonoBehaviour
             for(int i = 0; i < levelOfDetailData.Length; i++)
                 _levelOfDetailMeshes[i] = new LODMesh(levelOfDetailData[i].levelOfDetail, UpdateTerrainChunk);
 
-            _mapGenerator.RequestMapData(OnMapDataReceived);
+            _mapGenerator.RequestMapData(_position, OnMapDataReceived);
 
             SetVisibility(false);
         }
@@ -179,6 +179,9 @@ public class EndlessTerrain : MonoBehaviour
         {
             _mapData = mapData;
             _mapDataReceived = true;
+
+            Texture2D texture = TextureGenerator.FromColorMap(mapData.colorMap, MapGenerator.mapChunkSize, MapGenerator.mapChunkSize);
+            _meshRenderer.material.SetTexture("_MainTex", texture);
 
             UpdateTerrainChunk();
         }

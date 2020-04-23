@@ -40,19 +40,19 @@ public class MapGenerator : MonoBehaviour
 
     private Queue<MapThreadInfo<MapData>> _mapDataThreadInfoQueue = new Queue<MapThreadInfo<MapData>>();
 
-    public void RequestMapData(Action<MapData> callback)
+    public void RequestMapData(Vector2 center, Action<MapData> callback)
     {
         ThreadStart threadStart = delegate
         {
-            MapDataThread(callback);
+            MapDataThread(center, callback);
         };
 
         new Thread(threadStart).Start();
     }
 
-    private void MapDataThread(Action<MapData> callback)
+    private void MapDataThread(Vector2 center, Action<MapData> callback)
     {
-        MapData mapData = GenerateMapData();
+        MapData mapData = GenerateMapData(center);
 
         lock(_mapDataThreadInfoQueue)
         {
@@ -114,7 +114,7 @@ public class MapGenerator : MonoBehaviour
 
     public void DrawMap()
     {
-        MapData mapData = GenerateMapData();
+        MapData mapData = GenerateMapData(Vector2.zero);
 
         MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
         switch (drawMode)
@@ -137,9 +137,9 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    private MapData GenerateMapData()
+    private MapData GenerateMapData(Vector2 center)
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapChunkSize, mapChunkSize, scale, lacunarity, persistence, octaves, offset);
+        float[,] noiseMap = Noise.GenerateNoiseMap(seed, mapChunkSize, mapChunkSize, scale, lacunarity, persistence, octaves, center + offset);
 
         Color[] colorMap = GenerateColorMap(mapChunkSize, mapChunkSize, noiseMap);
 
