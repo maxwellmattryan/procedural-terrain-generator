@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
-    public enum DrawMode { NoiseMap, ColorMap, Mesh }
+    public enum DrawMode { NoiseMap, ColorMap, FalloffMap, Mesh }
     public DrawMode drawMode;
 
     public Noise.NormalizeMode normalizeMode;
@@ -35,10 +35,19 @@ public class MapGenerator : MonoBehaviour
     public float meshHeightMultiplier;
     public AnimationCurve meshHeightCurve;
 
+    public bool applyFalloffMap;
+
     public bool autoUpdate;
 
     // ** CAUTION: Make sure to enter regions in order of increasing height (or else the terrains will not draw correctly) ** 
     public TerrainType[] regions;
+
+    private float[,] _falloffMap;
+
+    private void Awake()
+    {
+        _falloffMap = FalloffMapGenerator.GenerateFalloffMap(mapChunkSize);
+    }
 
     private Queue<MapThreadInfo<MapData>> _mapDataThreadInfoQueue = new Queue<MapThreadInfo<MapData>>();
 
@@ -130,6 +139,10 @@ public class MapGenerator : MonoBehaviour
                 mapDisplay.DrawTexture(TextureGenerator.FromColorMap(mapData.colorMap, mapChunkSize, mapChunkSize));
                 break;
 
+            case DrawMode.FalloffMap:
+                mapDisplay.DrawTexture(TextureGenerator.FromHeightMap(FalloffMapGenerator.GenerateFalloffMap(mapChunkSize)));
+                break;
+
             case DrawMode.Mesh:
                 mapDisplay.DrawMesh(
                     MeshGenerator.GenerateTerrainMeshData(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, editorLevelOfDetail), 
@@ -156,6 +169,9 @@ public class MapGenerator : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
+                if (applyFalloffMap)
+                    noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - _falloffMap[x, y]);
+
                 float currentHeight = noiseMap[x, y];
 
                 for (int i = 0; i < regions.Length; i++)
@@ -180,6 +196,9 @@ public class MapGenerator : MonoBehaviour
 
         if (octaves < 1)
             octaves = 1;
+
+        if (_falloffMap == null)
+            _falloffMap = FalloffMapGenerator.GenerateFalloffMap(mapChunkSize);
     }
 
     private struct MapThreadInfo<T>
