@@ -30,6 +30,6 @@ public static class FalloffMapGenerator
 
         float result = Mathf.Pow(value, a) / (Mathf.Pow(value, a) + Mathf.Pow(b - b * value, a));
 
-        return Mathf.Clamp(result, 0f, float.MaxValue);
+        return result;
     }
 }
