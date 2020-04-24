@@ -34,7 +34,7 @@ public static class MeshGenerator
                     meshData.AddTriangle(vertexIndex + verticesPerLine + 1, vertexIndex, vertexIndex + 1);
                 }
 
-                meshData.vertices[vertexIndex] = new Vector3(topLeftX + (float)x, heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier, topLeftZ - (float)y);
+                meshData.vertices[vertexIndex] = new Vector3(topLeftX + (float) x, heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier, topLeftZ - (float) y);
                 meshData.uvMaps[vertexIndex] = new Vector2(x / (float) width, y / (float) height);
 
                 vertexIndex++;
@@ -79,7 +79,7 @@ public class MeshData
         };
 
         // this is intended to make the lighting nicer
-        mesh.normals = CalculateNormals();
+        mesh.SetNormals(CalculateNormals());
 
         return mesh;
     }
@@ -105,8 +105,8 @@ public class MeshData
             vertexNormals[vertexIndexC] += triangleNormal;
         }
 
-        for (int i = 0; i < vertexNormals.Length; i++)
-            vertexNormals[i].Normalize();
+        foreach (Vector3 vertex in vertexNormals)
+            vertex.Normalize();
 
         return vertexNormals;
     }

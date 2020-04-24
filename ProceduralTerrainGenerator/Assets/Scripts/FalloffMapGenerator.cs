@@ -25,9 +25,11 @@ public static class FalloffMapGenerator
 
     public static float EvaluateCurvedValue(float value)
     {
-        float a = 3f;
-        float b = 2.2f;
+        float a = 2f;
+        float b = 5f;
 
-        return Mathf.Pow(value, a) / (Mathf.Pow(value, a) + Mathf.Pow(b - b * value, a));
+        float result = Mathf.Pow(value, a) / (Mathf.Pow(value, a) + Mathf.Pow(b - b * value, a));
+
+        return Mathf.Clamp(result, 0f, float.MaxValue);
     }
 }
