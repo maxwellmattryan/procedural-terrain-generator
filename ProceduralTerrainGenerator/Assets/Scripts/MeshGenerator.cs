@@ -74,6 +74,8 @@ public static class MeshGenerator
             }
         }
 
+        meshData.BakeNormals();
+
         return meshData;
     }
 }
@@ -83,6 +85,7 @@ public class MeshData
     private Vector3[] _vertices;
     private int[] _triangles;
     private Vector2[] _uvMaps;
+    private Vector3[] _bakedNormals;
 
     private int _triangleIndex;
 
@@ -145,9 +148,14 @@ public class MeshData
         };
 
         // this is intended to make the lighting nicer
-        mesh.SetNormals(CalculateNormals());
+        mesh.SetNormals(_bakedNormals);
 
         return mesh;
+    }
+
+    public void BakeNormals()
+    {
+        _bakedNormals = CalculateNormals();
     }
 
     private Vector3[] CalculateNormals()

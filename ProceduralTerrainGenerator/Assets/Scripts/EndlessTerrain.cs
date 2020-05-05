@@ -7,10 +7,10 @@ public class EndlessTerrain : MonoBehaviour
     private const float _moveDistanceThresholdForChunkUpdate = 25f;
     private const float _sqrMoveDistanceThresholdForChunkUpdate = _moveDistanceThresholdForChunkUpdate * _moveDistanceThresholdForChunkUpdate;
 
-    private const float _scale = 10f;
+    private const float _scale = 2f;
 
-    public LODData[] levelOfDetailData;
     public static float maxViewDistance;
+    public LODData[] levelOfDetailData;
 
     public Transform viewer;
 
@@ -87,6 +87,7 @@ public class EndlessTerrain : MonoBehaviour
 
         private LODData[] _levelOfDetailData;
         private LODMesh[] _levelOfDetailMeshes;
+        private LODMesh _collisionLevelOfDetailMesh;
 
         private int _previousLevelOfDetailIndex = -1;
 
@@ -117,7 +118,12 @@ public class EndlessTerrain : MonoBehaviour
 
             _levelOfDetailMeshes = new LODMesh[levelOfDetailData.Length];
             for(int i = 0; i < levelOfDetailData.Length; i++)
+            {
                 _levelOfDetailMeshes[i] = new LODMesh(levelOfDetailData[i].levelOfDetail, UpdateTerrainChunk);
+
+                if(levelOfDetailData[i].useForCollider)
+                    _collisionLevelOfDetailMesh = _levelOfDetailMeshes[i];
+            }
 
             _mapGenerator.RequestMapData(_position, OnMapDataReceived);
 
@@ -142,11 +148,20 @@ public class EndlessTerrain : MonoBehaviour
                     {
                         _previousLevelOfDetailIndex = levelOfDetailIndex;
                         _meshFilter.mesh = levelOfDetailMesh.mesh;
-                        _meshCollider.sharedMesh = levelOfDetailMesh.mesh;
                     }
                     else if (!levelOfDetailMesh.hasRequestedMesh)
                         levelOfDetailMesh.RequestMesh(_mapData);
                 }
+
+                if (levelOfDetailIndex == 0)
+                {
+                    if (_collisionLevelOfDetailMesh.hasMesh)
+                        _meshCollider.sharedMesh = _collisionLevelOfDetailMesh.mesh;
+
+                    else if (!_collisionLevelOfDetailMesh.hasRequestedMesh)
+                        _collisionLevelOfDetailMesh.RequestMesh(_mapData);
+                }
+
 
                 _previouslyVisibleTerrainChunks.Add(this);
             }   
@@ -227,5 +242,6 @@ public class EndlessTerrain : MonoBehaviour
     {
         public int levelOfDetail;
         public float visibleDistanceThreshold;
+        public bool useForCollider;
     }
 }
