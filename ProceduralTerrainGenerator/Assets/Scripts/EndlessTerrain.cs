@@ -81,8 +81,9 @@ public class EndlessTerrain : MonoBehaviour
         private Bounds _bounds;
         private GameObject _meshObject;
 
-        private MeshRenderer _meshRenderer;
+        private MeshCollider _meshCollider;
         private MeshFilter _meshFilter;
+        private MeshRenderer _meshRenderer;
 
         private LODData[] _levelOfDetailData;
         private LODMesh[] _levelOfDetailMeshes;
@@ -107,10 +108,12 @@ public class EndlessTerrain : MonoBehaviour
             _meshObject.transform.parent = parent;
             _meshObject.transform.localScale = Vector3.one * _scale;
 
-            _meshRenderer = _meshObject.AddComponent<MeshRenderer>();
-            _meshRenderer.material = material;
+            _meshCollider = _meshObject.AddComponent<MeshCollider>();
 
             _meshFilter = _meshObject.AddComponent<MeshFilter>();
+
+            _meshRenderer = _meshObject.AddComponent<MeshRenderer>();
+            _meshRenderer.material = material;
 
             _levelOfDetailMeshes = new LODMesh[levelOfDetailData.Length];
             for(int i = 0; i < levelOfDetailData.Length; i++)
@@ -139,6 +142,7 @@ public class EndlessTerrain : MonoBehaviour
                     {
                         _previousLevelOfDetailIndex = levelOfDetailIndex;
                         _meshFilter.mesh = levelOfDetailMesh.mesh;
+                        _meshCollider.sharedMesh = levelOfDetailMesh.mesh;
                     }
                     else if (!levelOfDetailMesh.hasRequestedMesh)
                         levelOfDetailMesh.RequestMesh(_mapData);
