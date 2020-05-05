@@ -5,7 +5,7 @@ using UnityEngine;
 public static class MeshGenerator
 {
     // this returns MeshData (instead of Mesh) because we need the individual data points that allow multi-threading to be possible
-    public static MeshData GenerateTerrainMeshData(float[,] heightMap, float heightMultiplier, AnimationCurve _heightCurve, int levelOfDetail)
+    public static MeshData GenerateTerrainMeshData(float[,] heightMap, float heightMultiplier, AnimationCurve _heightCurve, int levelOfDetail, bool applyFlatShading)
     {
         // each thread has its own heightCurve with this statement (so no wild discrepancies as a result)
         AnimationCurve heightCurve = new AnimationCurve(_heightCurve.keys);
@@ -22,7 +22,7 @@ public static class MeshGenerator
 
         int verticesPerLine = (meshSizeSimplified - 1) / meshSimplificationIncrement + 1;
 
-        MeshData meshData = new MeshData(verticesPerLine);
+        MeshData meshData = new MeshData(verticesPerLine, applyFlatShading);
 
         int[,] vertexIndicesMap = new int[borderedSize, borderedSize];
 
@@ -74,7 +74,7 @@ public static class MeshGenerator
             }
         }
 
-        meshData.BakeNormals();
+        meshData.ProcessMesh();
 
         return meshData;
     }
@@ -94,7 +94,9 @@ public class MeshData
 
     private int _borderTriangleIndex;
 
-    public MeshData(int verticesPerLine)
+    private bool _applyFlatShading;
+
+    public MeshData(int verticesPerLine, bool applyFlatShading)
     {
         _vertices = new Vector3[verticesPerLine * verticesPerLine];
         _triangles = new int[(verticesPerLine - 1) * (verticesPerLine - 1) * 6];
@@ -104,6 +106,7 @@ public class MeshData
         _borderVertices = new Vector3[verticesPerLine * 4 + 4];
         _borderTriangles = new int[verticesPerLine * 24];
 
+        _applyFlatShading = applyFlatShading;
     }
 
     public void AddVertex(Vector3 vertexPosition, Vector2 uv, int vertexIndex)
@@ -147,13 +150,15 @@ public class MeshData
             uv = _uvMaps
         };
 
-        // this is intended to make the lighting nicer
-        mesh.SetNormals(_bakedNormals);
+        if (_applyFlatShading)
+            mesh.RecalculateNormals();
+        else
+            mesh.SetNormals(_bakedNormals);
 
         return mesh;
     }
 
-    public void BakeNormals()
+    private void BakeNormals()
     {
         _bakedNormals = CalculateNormals();
     }
@@ -215,5 +220,30 @@ public class MeshData
         Vector3 sideAC = pointC - pointA;
 
         return Vector3.Cross(sideAB, sideAC).normalized;
+    }
+
+    private void ApplyFlatShading()
+    {
+        Vector3[] flatShadedVertices = new Vector3[_triangles.Length];
+        Vector2[] fladShadedUVs = new Vector2[_triangles.Length];
+
+        for(int i = 0; i < _triangles.Length; i++)
+        {
+            flatShadedVertices[i] = _vertices[_triangles[i]];
+            fladShadedUVs[i] = _uvMaps[_triangles[i]];
+
+            _triangles[i] = i;
+        }
+
+        _vertices = flatShadedVertices;
+        _uvMaps = fladShadedUVs;
+    }
+
+    public void ProcessMesh()
+    {
+        if (_applyFlatShading)
+            ApplyFlatShading();
+        else
+            BakeNormals();
     }
 }
